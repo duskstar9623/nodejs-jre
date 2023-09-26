@@ -1,0 +1,6 @@
+{
+    "baseUrl": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/8/jre/x64/",
+    "windows": "windows/OpenJDK8U-jre_x64_windows_hotspot_8u382b05.zip",
+    "mac": "mac/OpenJDK8U-jre_x64_mac_hotspot_8u382b05.tar.gz",
+    "linux": "linux/OpenJDK8U-jre_x64_linux_hotspot_8u382b05.tar.gz"
+}
