@@ -28,21 +28,21 @@ const path = require('path');
 const com = require('../common');
 
 // Make sure the jre folder exists and is normal
-function isJreDir(dirPath) {
-    return fs.statSync(dirPath).isDirectory()
+function getSourceDir(jreDir) {
+    return fs.readdirSync(jreDir)[0];
 }
 
 // Get the java command path
-function drive() {
-    if(!isJreDir(com.jreDir)) com.fail('No jre source found!');
+function getCommand() {
+    if(!getSourceDir(com.jreDir)) com.fail('No jre source found!');
 
     switch(com.platform) {
         case 'win32':
-            return path.resolve(com.jreDir, path.join('bin', 'java.exe'));
+            return path.resolve(com.jreDir, getSourceDir(com.jreDir), path.join('bin', 'java.exe'));
         case 'darwin':
-            return path.resolve(com.jreDir, path.join('Contents', 'Home', 'bin', 'java'));
+            return path.resolve(com.jreDir, getSourceDir(com.jreDir), path.join('Contents', 'Home', 'bin', 'java'));
         case 'linux':
-            return path.resolve(com.jreDir, path.join('bin', 'java'));
+            return path.resolve(com.jreDir, getSourceDir(com.jreDir), path.join('bin', 'java'));
         default:
             com.fail(`Unsupported platform: ${com.platform}, no jre source found!`);
     }
@@ -53,16 +53,16 @@ function getArgs(classPath, className, args) {
     args = (args || []).slice();
     classPath = classPath || [];
     args.unshift(className);
-    args.unshift(classPath.join(com.platform === 'windows' ? ';' : ':'));
+    args.unshift(classPath.join(com.platform === 'win32' ? ';' : ':'));
     args.unshift('-cp');
     return args;
 }
 
 
 exports.spawn = (classPath, className, args, options) => {
-    child_process.spawn(drive(), getArgs(classPath, className, args), options);
+    return child_process.spawn(getCommand(), getArgs(classPath, className, args), options);
 };
 
 exports.spawnSync = (classPath, className, args, options) => {
-    child_process.spawnSync(drive(), getArgs(classPath, className, args), options);
+    return child_process.spawnSync(getCommand(), getArgs(classPath, className, args), options);
 }

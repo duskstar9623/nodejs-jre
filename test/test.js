@@ -20,3 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+const { spawnSync } = require('../api/spawn');
+
+exports.smokeTest = () => {
+    return spawnSync([__dirname], 'Smoketest', [], {encoding: 'utf-8'})
+                .stdout.trim() === 'Trigger smoke test!';
+}

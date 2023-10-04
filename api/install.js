@@ -27,9 +27,10 @@ const https = require('https');
 
 const ProgressBar = require('progress');
 const axios = require('axios');
-const archiver = require('archiver');
+const compressing = require('compressing');
 
 const com = require('../common');
+const { smokeTest } = require('../test/test');
 
 // Get the final jre download url
 function getUrl(os) {
@@ -40,9 +41,19 @@ function getUrl(os) {
 // Get compressed format
 function getCompressedFormat(url) {
     if(url.indexOf('.zip') > -1) return '.zip';
-    if(url.indexOf('.tar') > -1) return '.tar';
+    if(url.indexOf('.tar.gz') > -1) return '.tar.gz';
     return path.extname(url);
 }
+
+// Unzip
+function decompression(source, format, dest) {
+    if(format === '.zip') {
+        return compressing.zip.uncompress(source, dest);
+    }else if(format === '.tar.gz') {
+        return compressing.tgz.uncompress(source, dest);
+    }
+}
+
 
 exports.install = (callback) => {
     let url;
@@ -87,7 +98,7 @@ exports.install = (callback) => {
 
         // Progress bar
         let len = parseInt(res.headers['content-length'], 10);
-        let bar = new ProgressBar('Downloading and preparing JRE [:bar] :rate/bps :percent :etas', {
+        let bar = new ProgressBar('Downloading and preparing JRE [:bar] :percent   Remainder::etas', {
             complete: '=',
             incomplete: ' ',
             width: 80,
@@ -105,18 +116,18 @@ exports.install = (callback) => {
         });
     }).then(() => {
         // Unzip the file to the jre directory
-        const reader = fs.createReadStream(tarPath).pipe(archiver(
-            format === '.zip' ? 'zip' : 'tar',
-            {
-                gzip: format === '.zip' ? false : true,
-                zlib: { level: 9 }
-            }
-        ));
+        return decompression(tarPath, format, com.jreDir);
+    }).then(() => {
+        fs.unlinkSync(tarPath);
 
-        // Wait for the decompression to complete
-        return new Promise((resolve, reject) => {
-            reader.on('finish', resolve);
-            reader.on('error', reject);
-        });
-    })
+        // Smoke test
+        if(smokeTest()) {
+            console.log('Smoke test passed!');
+            callback();
+        }else {
+            callback('Smoke test failed!')
+        }
+    }).catch(err => {
+        com.fail(`Failed to download and extract file: ${err.message}`);
+    });
 }

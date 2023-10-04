@@ -1,10 +1,14 @@
 {
     "name": "nodejs-jre",
     "version": "1.0.0",
-    "description": "Embeds JRE for nodejs application",
+    "description": "Embeds JRE for nodejs application and provide usage methods.",
     "main": "index.js",
     "scripts": {
         "install": "node ./download.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/duskstar9623/nodejs-jre.git"
     },
     "keywords": [
         "node",
@@ -13,10 +17,15 @@
         "java",
         "openjdk"
     ],
+    "author": "Duskstar <duskstar@foxmail.com>",
     "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/duskstar9623/nodejs-jre/issues"
+    },
+    "homepage": "https://github.com/duskstar9623/nodejs-jre#readme",
     "dependencies": {
-        "archiver": "^6.0.1",
         "axios": "^1.5.0",
+        "compressing": "^1.10.0",
         "progress": "^2.0.3"
     }
 }
