@@ -1,0 +1,6 @@
+# project related
+**/node_modules
+
+# development related
+.vscode
+.npmrc
