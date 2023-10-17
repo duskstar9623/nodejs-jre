@@ -20,7 +20,8 @@
     "author": "Duskstar <duskstar@foxmail.com>",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/duskstar9623/nodejs-jre/issues"
+        "url": "https://github.com/duskstar9623/nodejs-jre/issues",
+        "email": "duskstar@foxmail.com"
     },
     "homepage": "https://github.com/duskstar9623/nodejs-jre#readme",
     "dependencies": {

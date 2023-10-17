@@ -1,3 +1,4 @@
+/* Node Modules */
 const os = require('os');
 const path = require('path');
 const process = require('process');
@@ -8,13 +9,13 @@ const com = {};
 com.arch = os.arch();
 // os
 com.platform = os.platform();
-// jreDir
+// jreDir, jdkDir
 com.jreDir = path.join(__dirname, 'jre');
-// error handle
+com.jdkDir = path.join(__dirname, 'jdk');
+// Error handle
 com.fail = (errMsg) => {
-    console.error(errMsg);
+    console.error(`[nodejs-jre error] ${errMsg}`);
     process.exit(1);
 }
-
 
 module.exports = com;
