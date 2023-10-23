@@ -1,7 +1,10 @@
 # nodejs-jre
 
-![Static Badge](https://img.shields.io/badge/npm-v1.0.0-blue) ![Static Badge](https://img.shields.io/badge/License-MIT-red)
-
+<p>
+  <a href="https://www.npmjs.com/package/nodejs-jre"><img alt="npm" src="https://img.shields.io/npm/v/nodejs-jre"></a>
+  <a href="https://github.com/duskstar9623/nodejs-jre/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/duskstar9623/nodejs-jre?color=%23E2492F"></a>
+  <a href="https://github.com/duskstar9623"><img alt="Static Badge" src="https://img.shields.io/badge/author-Duskstar-%23008c8c?logo=github"></a>
+</p>
 
 > Warning: this library highly relies on the stability of the download source for operation, so may work abnormally at any time.  
 

@@ -4,25 +4,48 @@ const path = require('path');
 const https = require('https');
 
 /* Npm Modules */
-const ProgressBar = require('progress');
 const axios = require('axios');
 const compressing = require('compressing');
+const cliProgress = require('cli-progress');
 
 /* Internal Modules */
 const com = require('../common');
-const { smokeTest } = require('../test/test');
 
-// Get the final jre download url
-function getUrl(os) {
-    let url = JSON.parse(fs.readFileSync(path.resolve('url.json'), {encoding: 'utf-8'}));
-    return url.baseUrl + url[os];
+// Get the final source download url
+function getUrl(driver, version, os) {
+    let urls = JSON.parse(fs.readFileSync(path.resolve('source.json'), {encoding: 'utf-8'}));
+    let baseUrl = path.join(urls.baseUrl, version, driver, com.arch, os);
+    version = 'v' + version;
+
+    return path.join(baseUrl, urls[driver][version][os]);
 }
 
 // Get compressed format
 function getCompressedFormat(url) {
     if(url.indexOf('.zip') > -1) return '.zip';
     if(url.indexOf('.tar.gz') > -1) return '.tar.gz';
-    return path.extname(url);
+    return com.fail('Unsupported compressed format: ' + path.extname(url));
+}
+
+// Make sure the source folder exists and clear it before each installation
+function clearDir(dirPath) {
+    if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath);
+    
+        files.forEach((file) => {
+          const curPath = path.join(dirPath, file);
+    
+          if (fs.statSync(curPath).isDirectory()) {
+            clearDir(curPath);
+          } else {
+            fs.unlinkSync(curPath);
+          }
+        });
+    
+        fs.rmdirSync(dirPath);
+      }
+    
+    fs.mkdirSync(dirPath, { recursive: true });
 }
 
 // Unzip
@@ -34,38 +57,41 @@ function decompression(source, format, dest) {
     }
 }
 
+// Currently supported versions of driver
+let versions = ['8', '11', '17'];
 
-exports.install = (callback) => {
+exports.install = (driver, version, callback) => {
     let url;
     let format;
     let tarPath;
+    version = version.toString();
 
-    // Exclude unsupported architectures and platforms
+    // Exclude unsupported architectures, platforms and non compliant parameters
     if(com.arch !== 'x64') com.fail('Unsupported architecture: ' + com.arch);
+    if(driver !== 'jre' && driver !== 'jdk') com.fail('Unsupported driver: ' + driver);
+    if(!versions.includes(version)) com.fail('Unsupported driver version: ' + version);
+    
     switch(com.platform) {
         case 'win32':
-            url = getUrl('windows');
+            url = getUrl(driver, version, 'windows');
             break;
         case 'darwin':
-            url = getUrl('mac');
+            url = getUrl(driver, version, 'mac');
             break;
         case 'linux':
-            url = getUrl('linux');
+            url = getUrl(driver, version, 'linux');
             break;
         default:
             com.fail(`Unsupported platform: ${com.platform}`);
     }
 
     format = getCompressedFormat(url);
-    tarPath = path.resolve(__dirname, `../jre/jre${format}`);
+    tarPath = path.resolve(`driver${format}`);
     console.log("Downloading from:", url);
     callback = callback || (() => {});
 
-    if(fs.rm) {
-        fs.rm(com.jreDir, {recursive: true}, () => {});
-    }else {
-        fs.rmdir(com.jreDir, {recursive: true}, () => {});
-    }
+    // Clear the source folder
+    driver === 'jre' ? clearDir(com.jreDir) : clearDir(com.jdkDir);
 
     axios({
         method: 'get',
@@ -73,40 +99,29 @@ exports.install = (callback) => {
         responseType: 'stream',
         httpsAgent: new https.Agent({rejectUnauthorized: false})
     }).then(res => {
-        fs.mkdirSync(com.jreDir, { recursive: true });    // Make sure the directory exists
         const writer = fs.createWriteStream(tarPath);
-
-        // Progress bar
-        let len = parseInt(res.headers['content-length'], 10);
-        let bar = new ProgressBar('Downloading and preparing JRE [:bar] :percent   Remainder::etas', {
-            complete: '=',
-            incomplete: ' ',
-            width: 80,
-            total: len
-        });
+        const totalLength = res.headers['content-length'];
+        const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+        progressBar.start(parseInt(totalLength), 0);
+      
         res.data.on('data', (chunk) => {
-            bar.tick(chunk.length);
+          progressBar.increment(chunk.length);
         });
-
+      
         res.data.pipe(writer);
-
+      
         return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
+          writer.on('finish', () => {
+            progressBar.stop();
+            resolve();
+          });
+          writer.on('error', reject);
         });
     }).then(() => {
         // Unzip the file to the jre directory
         return decompression(tarPath, format, com.jreDir);
     }).then(() => {
         fs.unlinkSync(tarPath);
-
-        // Smoke test
-        if(smokeTest()) {
-            console.log('Smoke test passed!');
-            callback();
-        }else {
-            callback('Smoke test failed!')
-        }
     }).catch(err => {
         com.fail(`Failed to download and extract file: ${err.message}`);
     });

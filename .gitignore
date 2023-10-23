@@ -1,5 +1,7 @@
 # project related
 **/node_modules
+**/jre
+**/jdk
 
 # development related
 .vscode
