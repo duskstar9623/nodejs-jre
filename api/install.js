@@ -13,7 +13,7 @@ const com = require('../common');
 
 // Get the final source download url
 function getUrl(driver, version, os) {
-    let urls = JSON.parse(fs.readFileSync(path.resolve('source.json'), {encoding: 'utf-8'}));
+    let urls = JSON.parse(fs.readFileSync(path.resolve('source.json'), { encoding: 'utf-8' }));
     let baseUrl = path.join(urls.baseUrl, version, driver, com.arch, os);
     version = 'v' + version;
 
@@ -31,19 +31,11 @@ function getCompressedFormat(url) {
 function clearDir(dirPath) {
     if (fs.existsSync(dirPath)) {
         const files = fs.readdirSync(dirPath);
-    
         files.forEach((file) => {
-          const curPath = path.join(dirPath, file);
-    
-          if (fs.statSync(curPath).isDirectory()) {
-            clearDir(curPath);
-          } else {
-            fs.unlinkSync(curPath);
-          }
+            const curPath = path.join(dirPath, file);
+            fs.rmSync(curPath, { recursive: true });
         });
-    
-        fs.rmdirSync(dirPath);
-      }
+    }
     
     fs.mkdirSync(dirPath, { recursive: true });
 }
@@ -90,7 +82,7 @@ exports.install = (driver, version, callback) => {
     console.log("Downloading from:", url);
     callback = callback || (() => {});
 
-    // Clear the source folder
+    // Prepare the source folder
     driver === 'jre' ? clearDir(com.jreDir) : clearDir(com.jdkDir);
 
     axios({
@@ -100,28 +92,42 @@ exports.install = (driver, version, callback) => {
         httpsAgent: new https.Agent({rejectUnauthorized: false})
     }).then(res => {
         const writer = fs.createWriteStream(tarPath);
+
+        // Define progress bar
         const totalLength = res.headers['content-length'];
-        const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+        const progressBar = new cliProgress.SingleBar({
+            format: 'Downloading progress [{bar}] {percentage}% | Data: {_value}/{_total} | ETA: {eta}s',
+            barCompleteChar: '=',
+            barIncompleteChar: '\u00A0',
+            hideCursor: true,
+            barsize: 80
+        }, cliProgress.Presets.legacy);
         progressBar.start(parseInt(totalLength), 0);
-      
+        
+        let doneValue = 0;
         res.data.on('data', (chunk) => {
-          progressBar.increment(chunk.length);
+            doneValue += chunk.length;
+            progressBar.increment(chunk.length, {
+                _value: (parseInt(doneValue) / 1024 / 1024).toFixed(2) + ' Mb',
+                _total: (parseInt(totalLength) / 1024 / 1024).toFixed(2) + ' Mb'
+            });
         });
-      
         res.data.pipe(writer);
       
         return new Promise((resolve, reject) => {
-          writer.on('finish', () => {
-            progressBar.stop();
-            resolve();
-          });
-          writer.on('error', reject);
+            writer.on('finish', () => {
+                progressBar.stop();
+                resolve();
+            });
+            writer.on('error', reject);
         });
     }).then(() => {
-        // Unzip the file to the jre directory
-        return decompression(tarPath, format, com.jreDir);
+        // Unzip the file to the driver directory
+        if(driver === 'jre') return decompression(tarPath, format, com.jreDir);
+        return decompression(tarPath, format, com.jdkDir);
     }).then(() => {
-        fs.unlinkSync(tarPath);
+        fs.unlink(tarPath, () => {});
+        if(callback && typeof callback === 'function') callback();
     }).catch(err => {
         com.fail(`Failed to download and extract file: ${err.message}`);
     });
