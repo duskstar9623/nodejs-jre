@@ -3,7 +3,6 @@ const os = require('os');
 const path = require('path');
 const process = require('process');
 const fs = require('fs');
-const { compileFunction } = require('vm');
 
 const com = {};
 
@@ -26,17 +25,16 @@ com.fail = (errMsg) => {
 // Before calling the api, preliminary verification of the driver
 com.driverVerify = (driver) => {
     let isInstalled = true;
-    let dirFiles = [];
 
     if(driver === 'jre') {
         if(fs.existsSync(com.jreDir)) {
-            fs.readdirSync(com.jreDir).length === 0 ? isInstalled = false : null;
+            isInstalled = fs.readdirSync(com.jreDir).length === 0 ? false : null;
         }else {
             isInstalled = false;
         }
     }else {
         if(fs.existsSync(com.jdkDir)) {
-            fs.readdirSync(com.jdkDir).length === 0 ? isInstalled = false : null;
+            isInstalled = fs.readdirSync(com.jdkDir).length === 0 ? false : null;
         }else {
             isInstalled = false;
         }

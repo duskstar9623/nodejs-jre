@@ -15,7 +15,8 @@
         "jre",
         "node-jre",
         "java",
-        "openjdk"
+        "openjdk",
+        "child_process"
     ],
     "author": "Duskstar <duskstar@foxmail.com>",
     "license": "MIT",

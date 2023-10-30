@@ -3,8 +3,8 @@
     "jre": {
         "v8": {
             "windows": "OpenJDK8U-jre_x64_windows_hotspot_8u392b08.zip",
-            "mac": "OpenJDK8U-jre_x64_mac_hotspot_8u382b05.tar.gz",
-            "linux": "OpenJDK8U-jre_x64_linux_hotspot_8u382b05.tar.gz"
+            "mac": "OpenJDK8U-jre_x64_mac_hotspot_8u392b08.tar.gz",
+            "linux": "OpenJDK8U-jre_x64_linux_hotspot_8u392b08.tar.gz"
         },
         "v11": {
             "windows": "OpenJDK11U-jre_x64_windows_hotspot_11.0.21_9.zip",
@@ -13,15 +13,15 @@
         },
         "v17": {
             "windows": "OpenJDK17U-jre_x64_windows_hotspot_17.0.8.1_1.zip",
-            "mac": "OpenJDK17U-jre_x64_mac_hotspot_17.0.8.1_1.tar.gz",
+            "mac": "OpenJDK17U-jre_x64_mac_hotspot_17.0.9_9.tar.gz",
             "linux": "OpenJDK17U-jre_x64_linux_hotspot_17.0.9_9.tar.gz"
         }
     },
     "jdk": {
         "v8": {
             "windows": "OpenJDK8U-jdk_x64_windows_hotspot_8u392b08.zip",
-            "mac": "OpenJDK8U-jdk_x64_mac_hotspot_8u382b05.tar.gz",
-            "linux": "OpenJDK8U-jdk_x64_linux_hotspot_8u382b05.tar.gz"
+            "mac": "OpenJDK8U-jdk_x64_mac_hotspot_8u392b08.tar.gz",
+            "linux": "OpenJDK8U-jdk_x64_linux_hotspot_8u392b08.tar.gz"
         },
         "v11": {
             "windows": "OpenJDK11U-jdk_x64_windows_hotspot_11.0.21_9.zip",
@@ -30,7 +30,7 @@
         },
         "v17": {
             "windows": "OpenJDK17U-jdk_x64_windows_hotspot_17.0.8.1_1.zip",
-            "mac": "OpenJDK17U-jdk_x64_mac_hotspot_17.0.8.1_1.tar.gz",
+            "mac": "OpenJDK17U-jdk_x64_mac_hotspot_17.0.9_9.tar.gz",
             "linux": "OpenJDK17U-jdk_x64_linux_hotspot_17.0.9_9.tar.gz"
         }
     }
