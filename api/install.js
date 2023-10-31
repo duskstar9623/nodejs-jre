@@ -1,14 +1,11 @@
-/* Node Modules */
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-/* Npm Modules */
 const axios = require('axios');
 const compressing = require('compressing');
 const cliProgress = require('cli-progress');
 
-/* Internal Modules */
 const com = require('../common');
 
 // Get the final source download url
@@ -19,14 +16,12 @@ function getUrl(driver, version, os) {
 
     return path.join(baseUrl, urls[driver][version][os]);
 }
-
 // Get compressed format
 function getCompressedFormat(url) {
     if(url.indexOf('.zip') > -1) return '.zip';
     if(url.indexOf('.tar.gz') > -1) return '.tar.gz';
     return com.fail('Unsupported compressed format: ' + path.extname(url));
 }
-
 // Make sure the source folder exists and clear it before each installation
 function clearDir(dirPath) {
     if (fs.existsSync(dirPath)) {
@@ -39,7 +34,6 @@ function clearDir(dirPath) {
     
     fs.mkdirSync(dirPath, { recursive: true });
 }
-
 // Unzip
 function decompression(source, format, dest) {
     if(format === '.zip') {
@@ -52,6 +46,12 @@ function decompression(source, format, dest) {
 // Currently supported versions of driver
 let versions = ['8', '11', '17'];
 
+/**
+ * @description According to parameters, install driver of the specified version
+ * @param {String} driver Only support 'jre' or 'jdk'
+ * @param {String|Number} version 
+ * @param {Function} callback 
+ */
 exports.install = (driver, version, callback) => {
     let url;
     let format;
