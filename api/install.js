@@ -1,50 +1,40 @@
-/* MIT License
- *
- * Copyright (c) 2023 Duskstar
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const ProgressBar = require('progress');
 const axios = require('axios');
 const compressing = require('compressing');
+const cliProgress = require('cli-progress');
+const color = require('ansi-colors');
 
 const com = require('../common');
-const { smokeTest } = require('../test/test');
 
-// Get the final jre download url
-function getUrl(os) {
-    let url = JSON.parse(fs.readFileSync(path.resolve('url.json'), {encoding: 'utf-8'}));
-    return url.baseUrl + url[os];
+// Get the final source download url
+function getUrl(driver, version, os) {
+    let urls = JSON.parse(fs.readFileSync(path.resolve('source.json'), { encoding: 'utf-8' }));
+    let baseUrl = path.join(urls.baseUrl, version, driver, com.arch, os);
+    version = 'v' + version;
+
+    return path.join(baseUrl, urls[driver][version][os]);
 }
-
 // Get compressed format
 function getCompressedFormat(url) {
     if(url.indexOf('.zip') > -1) return '.zip';
     if(url.indexOf('.tar.gz') > -1) return '.tar.gz';
-    return path.extname(url);
+    return com.fail('Unsupported compressed format: ' + color.yellow(path.extname(url)));
 }
-
+// Make sure the source folder exists and clear it before each installation
+function clearDir(dirPath) {
+    if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath);
+        files.forEach((file) => {
+            const curPath = path.join(dirPath, file);
+            fs.rmSync(curPath, { recursive: true });
+        });
+    }
+    
+    fs.mkdirSync(dirPath, { recursive: true });
+}
 // Unzip
 function decompression(source, format, dest) {
     if(format === '.zip') {
@@ -54,38 +44,48 @@ function decompression(source, format, dest) {
     }
 }
 
+// Currently supported versions of driver
+let versions = ['8', '11', '17'];
 
-exports.install = (callback) => {
+
+/**
+ * @description According to parameters, install driver of the specified version
+ * @param {String} driver Only support 'jre' or 'jdk'
+ * @param {String | Number} version version of JRE or JDK to be installed
+ * @param {Function} callback 
+ */
+exports.install = (driver, version, callback) => {
     let url;
     let format;
     let tarPath;
+    version = version.toString();
 
-    // Exclude unsupported architectures and platforms
-    if(com.arch !== 'x64') com.fail('Unsupported architecture: ' + com.arch);
+    // Exclude unsupported architectures, platforms and non compliant parameters
+    if(com.arch !== 'x64') com.fail('Unsupported architecture: ' + color.yellow(com.arch));
+    if(driver !== 'jre' && driver !== 'jdk') com.fail('Unsupported driver: ' + color.yellow(driver));
+    if(!versions.includes(version)) com.fail('Unsupported driver version: ' + color.yellow(version));
+    
     switch(com.platform) {
         case 'win32':
-            url = getUrl('windows');
+            url = getUrl(driver, version, 'windows');
             break;
         case 'darwin':
-            url = getUrl('mac');
+            url = getUrl(driver, version, 'mac');
             break;
         case 'linux':
-            url = getUrl('linux');
+            url = getUrl(driver, version, 'linux');
             break;
         default:
-            com.fail(`Unsupported platform: ${com.platform}`);
+            com.fail(`Unsupported platform: ${color.yellow(com.platform)}`);
     }
 
     format = getCompressedFormat(url);
-    tarPath = path.resolve(__dirname, `../jre/jre${format}`);
-    console.log("Downloading from:", url);
+    tarPath = path.resolve(`driver${format}`);
+    console.log("Downloading from:", color.blue.underline(url));
     callback = callback || (() => {});
 
-    if(fs.rm) {
-        fs.rm(com.jreDir, {recursive: true}, () => {});
-    }else {
-        fs.rmdir(com.jreDir, {recursive: true}, () => {});
-    }
+    // Prepare the source folder
+    driver === 'jre' ? clearDir(com.jreDir) : clearDir(com.jdkDir);
 
     axios({
         method: 'get',
@@ -93,41 +93,44 @@ exports.install = (callback) => {
         responseType: 'stream',
         httpsAgent: new https.Agent({rejectUnauthorized: false})
     }).then(res => {
-        fs.mkdirSync(com.jreDir, { recursive: true });    // Make sure the directory exists
         const writer = fs.createWriteStream(tarPath);
 
-        // Progress bar
-        let len = parseInt(res.headers['content-length'], 10);
-        let bar = new ProgressBar('Downloading and preparing JRE [:bar] :percent   Remainder::etas', {
-            complete: '=',
-            incomplete: ' ',
-            width: 80,
-            total: len
-        });
+        // Define progress bar
+        const totalLength = res.headers['content-length'];
+        const progressBar = new cliProgress.SingleBar({
+            format: `${color.magenta.italic('Downloading progress')} [${color.cyan('{bar}')}] ${color.red('{percentage}%')} | ${color.yellow('Data')}: {_value}/{_total} | ${color.yellow('ETA')}: {eta}s`,
+            barCompleteChar: '=',
+            barIncompleteChar: '\u00A0',
+            hideCursor: true,
+            barsize: 80
+        }, cliProgress.Presets.legacy);
+        progressBar.start(parseInt(totalLength), 0);
+        
+        let doneValue = 0;
         res.data.on('data', (chunk) => {
-            bar.tick(chunk.length);
+            doneValue += chunk.length;
+            progressBar.increment(chunk.length, {
+                _value: (parseInt(doneValue) / 1024 / 1024).toFixed(2) + ' Mb',
+                _total: (parseInt(totalLength) / 1024 / 1024).toFixed(2) + ' Mb'
+            });
         });
-
         res.data.pipe(writer);
-
+      
         return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
+            writer.on('finish', () => {
+                progressBar.stop();
+                resolve();
+            });
             writer.on('error', reject);
         });
     }).then(() => {
-        // Unzip the file to the jre directory
-        return decompression(tarPath, format, com.jreDir);
+        // Unzip the file to the driver directory
+        if(driver === 'jre') return decompression(tarPath, format, com.jreDir);
+        return decompression(tarPath, format, com.jdkDir);
     }).then(() => {
-        fs.unlinkSync(tarPath);
-
-        // Smoke test
-        if(smokeTest()) {
-            console.log('Smoke test passed!');
-            callback();
-        }else {
-            callback('Smoke test failed!')
-        }
+        fs.unlink(tarPath, () => {});
+        if(callback && typeof callback === 'function') callback();
     }).catch(err => {
-        com.fail(`Failed to download and extract file: ${err.message}`);
+        com.fail(`Failed to download and extract file: ${color.yellow(err.message)}`);
     });
 }
