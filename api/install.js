@@ -5,6 +5,7 @@ const https = require('https');
 const axios = require('axios');
 const compressing = require('compressing');
 const cliProgress = require('cli-progress');
+const color = require('ansi-colors');
 
 const com = require('../common');
 
@@ -20,7 +21,7 @@ function getUrl(driver, version, os) {
 function getCompressedFormat(url) {
     if(url.indexOf('.zip') > -1) return '.zip';
     if(url.indexOf('.tar.gz') > -1) return '.tar.gz';
-    return com.fail('Unsupported compressed format: ' + path.extname(url));
+    return com.fail('Unsupported compressed format: ' + color.yellow(path.extname(url)));
 }
 // Make sure the source folder exists and clear it before each installation
 function clearDir(dirPath) {
@@ -46,10 +47,11 @@ function decompression(source, format, dest) {
 // Currently supported versions of driver
 let versions = ['8', '11', '17'];
 
+
 /**
  * @description According to parameters, install driver of the specified version
  * @param {String} driver Only support 'jre' or 'jdk'
- * @param {String|Number} version 
+ * @param {String | Number} version version of JRE or JDK to be installed
  * @param {Function} callback 
  */
 exports.install = (driver, version, callback) => {
@@ -59,9 +61,9 @@ exports.install = (driver, version, callback) => {
     version = version.toString();
 
     // Exclude unsupported architectures, platforms and non compliant parameters
-    if(com.arch !== 'x64') com.fail('Unsupported architecture: ' + com.arch);
-    if(driver !== 'jre' && driver !== 'jdk') com.fail('Unsupported driver: ' + driver);
-    if(!versions.includes(version)) com.fail('Unsupported driver version: ' + version);
+    if(com.arch !== 'x64') com.fail('Unsupported architecture: ' + color.yellow(com.arch));
+    if(driver !== 'jre' && driver !== 'jdk') com.fail('Unsupported driver: ' + color.yellow(driver));
+    if(!versions.includes(version)) com.fail('Unsupported driver version: ' + color.yellow(version));
     
     switch(com.platform) {
         case 'win32':
@@ -74,12 +76,12 @@ exports.install = (driver, version, callback) => {
             url = getUrl(driver, version, 'linux');
             break;
         default:
-            com.fail(`Unsupported platform: ${com.platform}`);
+            com.fail(`Unsupported platform: ${color.yellow(com.platform)}`);
     }
 
     format = getCompressedFormat(url);
     tarPath = path.resolve(`driver${format}`);
-    console.log("Downloading from:", url);
+    console.log("Downloading from:", color.blue.underline(url));
     callback = callback || (() => {});
 
     // Prepare the source folder
@@ -96,7 +98,7 @@ exports.install = (driver, version, callback) => {
         // Define progress bar
         const totalLength = res.headers['content-length'];
         const progressBar = new cliProgress.SingleBar({
-            format: 'Downloading progress [{bar}] {percentage}% | Data: {_value}/{_total} | ETA: {eta}s',
+            format: `${color.magenta.italic('Downloading progress')} [${color.cyan('{bar}')}] ${color.red('{percentage}%')} | ${color.yellow('Data')}: {_value}/{_total} | ${color.yellow('ETA')}: {eta}s`,
             barCompleteChar: '=',
             barIncompleteChar: '\u00A0',
             hideCursor: true,
@@ -129,6 +131,6 @@ exports.install = (driver, version, callback) => {
         fs.unlink(tarPath, () => {});
         if(callback && typeof callback === 'function') callback();
     }).catch(err => {
-        com.fail(`Failed to download and extract file: ${err.message}`);
+        com.fail(`Failed to download and extract file: ${color.yellow(err.message)}`);
     });
 }

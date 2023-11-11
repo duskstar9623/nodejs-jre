@@ -1,1 +1,3 @@
-require('.').install('jre', 8, () => { console.log(`[nodejs-jre info] Done for installing jre8!!!`) });
+const color = require('ansi-colors');
+
+require('.').install('jre', 8, () => { console.log(`[${color.green.bold('Nodejs-jre Info')}] Done for installing jre8!`) });

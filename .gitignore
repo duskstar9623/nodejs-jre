@@ -1,5 +1,6 @@
 # project related
 **/node_modules
+package-lock.json
 **/jre
 **/jdk
 
