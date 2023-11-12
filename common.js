@@ -38,7 +38,7 @@ com.driverVerify = (driver) => {
         }
     }
 
-    isInstalled ? null : com.fail(`Don't find the driver: ${color.yellow(driver)}, please try to install first!!!`);
+    isInstalled ? null : com.fail(`Don't find the driver: ${color.yellow(driver)}, please try to install first!`);
 }
 // Get the execution path based on the specified source and command
 com.getCmdPath = (driver, cmd) => {
