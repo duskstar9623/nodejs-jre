@@ -11,7 +11,7 @@ const com = require('../common');
 
 // Get the final source download url
 function getUrl(driver, version, os) {
-    let urls = JSON.parse(fs.readFileSync(path.resolve('source.json'), { encoding: 'utf-8' }));
+    let urls = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../source.json'), { encoding: 'utf-8' }));
     let baseUrl = path.join(urls.baseUrl, version, driver, com.arch, os);
     version = 'v' + version;
 
@@ -80,7 +80,7 @@ exports.install = (driver, version, callback) => {
     }
 
     format = getCompressedFormat(url);
-    tarPath = path.resolve(`driver${format}`);
+    tarPath = path.resolve(__dirname, `../driver${format}`);
     console.log("Downloading from:", color.blue.underline(url));
     callback = callback || (() => {});
 
