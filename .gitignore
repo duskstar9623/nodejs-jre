@@ -1,10 +1,10 @@
-# project related
+### project related ###
 **/node_modules
 package-lock.json
 **/jre
 **/jdk
 
-# development related
+### development related ###
 .vscode
 .npmrc
 **test**

@@ -11,12 +11,12 @@ const com = require('../common');
  * @param {String[]} execArgs Arguments to the main class
  * @param {Object} options Options used by child_process.spawn, e.g. { uid: 123 }
  */
-function java(source, args = [], execArgs = [], options = { encoding: 'utf-8' }) {
+function java(source, args = [], execArgs = [], options = { encoding: 'utf8' }) {
     const { cmd, params } = com.getArgs('jre', 'java', source, args);
     
     return spawn(cmd, [...params, ...execArgs], options);
 }
-function javaSync(source, args = [], execArgs = [], options = { encoding: 'utf-8' }) {
+function javaSync(source, args = [], execArgs = [], options = { encoding: 'utf8' }) {
     const { cmd, params } = com.getArgs('jre', 'java', source, args);
 
     return spawnSync(cmd, [...params, ...execArgs], options);
