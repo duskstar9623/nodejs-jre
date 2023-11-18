@@ -93,17 +93,19 @@ The APIs of *nodejs-jre* are basically based on wrapper of [child_process.spawn]
 - jdk
   - [javac](#jdkjavacsourcefile-args-options)
   - javacSync
+  - [jar](#jdkjarmode-jarpath-args-options)
+  - jarSync
 
 ### install(driver, version[, callback])
 Download the specified version of JRE or JDK asynchronously and integrate it into the project, and execute a callback function upon completion. When `npm i` *nodejs-jre*, it will automatically call `install ('jre', 8)` to download and install `jre8`.
 
 **_Params_**: 
 - `driver` {String} — Type of resource
-  - Required, only support `'jre'` and `'jdk'`
+  - *<ins>Required</ins>*, only support `'jre'` and `'jdk'`
 - `version` {String | Number} — Version of resource
-  - Required, currently only support *`8`*, *`11`*, *`17`*
+  - *<ins>Required</ins>*, currently only support *`8`*, *`11`*, *`17`*
 - `callback` {Function} — Function called upon completion
-  - Optional, default: `() => {}`
+  - *<ins>Optional</ins>*, default: `() => {}`
 
 
 ### jre.java(source[, args][, execArgs][, options])
@@ -112,16 +114,16 @@ Create a subprocess, load the specified class or file, and launch the Java progr
 
 **_Params_**: 
 - `source` {String} — The class name or `jar` file to start, it needs to be used with different `args`
-  - Required, e.g. `'Hello'`, `'xxx.jar'`
+  - *<ins>Required</ins>*, e.g. `'Hello'`, `'xxx.jar'`
 - `args` {String[]} — Command line options used by `java`
-  - Optional, default: `[]`
+  - *<ins>Optional</ins>*, default: `[]`
   - e.g. `['-cp', 'test']`, `['-jar', 'xxx.jar']`, ...
   - View all available options list [here](https://docs.oracle.com/en/java/javase/11/tools/java.html#GUID-3B1CE181-CD30-4178-9602-230B800D4FAE__CBBIJCHG)
 - `execArgs` {String[]} — Parameters passed to the main class
-  - Optional, default: `[]`
+  - *<ins>Optional</ins>*, default: `[]`
   - e.g. `['world']`, ...
 - `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
-  - Optional, default: `{ encoding: 'utf-8' }`
+  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
   - View all available options list [here][child_process.spawn]
 
 This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn] and [Event:'spawn'](https://nodejs.org/docs/latest-v16.x/api/child_process.html#event-spawn).
@@ -150,13 +152,13 @@ Create a subprocess, to read Java class and interface definitions and compile th
 
 **_Params_**: 
 - `sourceFile` {String | String[]} — One or more source files to be compiled, passed in as an array, when there are multiple files
-  - Required, e.g. `'Hello.java'`, `['Hello.java', 'World.java']`
+  - *<ins>Required</ins>*, e.g. `'Hello.java'`, `['Hello.java', 'World.java']`
 - `args` {String[]} — Command line options used by `javac`
-  - Optional, default: `[]`
+  - *<ins>Optional</ins>*, default: `[]`
   - e.g. `['-d', 'test']`
   - View all available options list [here](https://docs.oracle.com/en/java/javase/11/tools/javac.html#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9__BHCGAJDC)
 - `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
-  - Optional, default: `{ encoding: 'utf-8' }`
+  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
   - View all available options list [here][child_process.spawn]
 
 This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn] and [Event:'spawn'](https://nodejs.org/docs/latest-v16.x/api/child_process.html#event-spawn).
@@ -176,10 +178,44 @@ jdk.javac(['test/Hello.java', 'World.java'], ['-d', 'class']);
 ```
 
 
+### jdk.jar(mode, jarPath[, args][, options])
+Create a subprocess, to create an archive for classes and resources, and to manipulate or restore individual classes or resources from an archive. Its essence is to call the `jar` command at the terminal, and specific usage can refer to [official document][jar].
+
+**_Params_**: 
+- `mode` {String} — Main operation modes of `jar` command
+  - *<ins>Required</ins>*, e.g. `'tf'`, `-cf`, ...
+- `jarPath` {String} — Path to the `jar` file to operate on
+  - *<ins>Required</ins>*, e.g. `'jars/xxx.jar'`
+- `args` {String | String[]} — Command line parameters used by `jar`
+  - *<ins>Optional</ins>*, default: `[]`
+  - e.g. `'class/xxx.class'`, `['--manifest', 'mymanifest', '-C', 'foo/']`, ...
+  - View all available parameters list [here][jar]
+- `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
+  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
+  - View all available options list [here][child_process.spawn]
+
+This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn] and [Event:'spawn'](https://nodejs.org/docs/latest-v16.x/api/child_process.html#event-spawn).
+
+```javascript
+const { jdk } = require('nodejs-jre');
+
+/*** Some Examples ***/
+
+// List the file directory of test.jar in the current directory
+jdk.jar('-tf', './test.jar');
+// Equivalent to executing at the terminal => `jar -tf ./test.jar`
+
+// Pack the class files a and b under the class folder into jar packages and place them in the jar directory and name them test.jar
+jdk.jar('cf', 'jars/test.jar', ['class/a.class', 'class/b.class']);
+// Equivalent to executing at the terminal => `jar cf jars/test.jar class/a.class class/b.class`
+```
+
+
 [child_process.spawn]: https://nodejs.org/docs/latest-v16.x/api/child_process.html#child_processspawncommand-args-options
 [child_process.spawnSync]: https://nodejs.org/docs/latest-v16.x/api/child_process.html#child_processspawnsynccommand-args-options
 [java]: https://docs.oracle.com/en/java/javase/11/tools/java.html#GUID-3B1CE181-CD30-4178-9602-230B800D4FAE
 [javac]: https://docs.oracle.com/en/java/javase/11/tools/javac.html#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9
+[jar]: https://docs.oracle.com/en/java/javase/11/tools/jar.html#GUID-51C11B76-D9F6-4BC2-A805-3C847E857867
 
 
 ## Chat
