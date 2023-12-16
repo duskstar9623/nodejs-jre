@@ -8,18 +8,11 @@
   <a href="https://www.npmjs.com/package/nodejs-jre"><img alt="npm" src="https://img.shields.io/npm/v/nodejs-jre?logo=npm"></a>
   <a href="https://github.com/duskstar9623/nodejs-jre/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/duskstar9623/nodejs-jre?color=%23E2492F"></a>
   <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img alt="Static Badge" src="https://img.shields.io/badge/language-javascript-%23F1E05A"></a>
-  <a href="https://github.com/duskstar9623/nodejs-jre"><img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/duskstar9623/nodejs-jre?logo=github&label=repo-size"></a>
   <a href="https://github.com/duskstar9623"><img alt="Static Badge" src="https://img.shields.io/badge/author-Duskstar-%23008c8c?logo=github"></a>
-  
 </p>
-
-> Warning: This library is highly dependent on the stability of the download source, so it may work abnormally at any time.
-
-> If there is any abnormal work, please create an new issue [here](https://github.com/duskstar9623/nodejs-jre/issues).
 
 *Nodejs-jre* will download the Java Runtime Environment (JRE) or Java Development Kit (JDK) from the open source mirror website. And embed it into your node.js application and provide usage way.
 
-At current version of this lib, the mirror website that provides download resources is [https://mirrors.tuna.tsinghua.edu.cn](https://mirrors.tuna.tsinghua.edu.cn).  
 Current supported JRE and JDK versions：*`8`*, *`11`*, *`17`*.
 
 
