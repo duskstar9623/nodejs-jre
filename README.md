@@ -8,18 +8,11 @@
   <a href="https://www.npmjs.com/package/nodejs-jre"><img alt="npm" src="https://img.shields.io/npm/v/nodejs-jre?logo=npm"></a>
   <a href="https://github.com/duskstar9623/nodejs-jre/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/duskstar9623/nodejs-jre?color=%23E2492F"></a>
   <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img alt="Static Badge" src="https://img.shields.io/badge/language-javascript-%23F1E05A"></a>
-  <a href="https://github.com/duskstar9623/nodejs-jre"><img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/duskstar9623/nodejs-jre?logo=github&label=repo-size"></a>
   <a href="https://github.com/duskstar9623"><img alt="Static Badge" src="https://img.shields.io/badge/author-Duskstar-%23008c8c?logo=github"></a>
-  
 </p>
-
-> 警告：该库高度依赖下载源的稳定性，因此随时可能工作异常。
-
-> 如果出现工作异常，请在[这里](https://github.com/duskstar9623/nodejs-jre/issues)创建 issue。
 
 *Nodejs-jre* 可以从开源镜像网站下载 Java 运行时环境（JRE）或 Java 开发工具包（JDK）嵌入你的 node.js 应用并提供使用方法。
 
-在当前版本中，提供下载资源的镜像站是 [https://mirrors.tuna.tsinghua.edu.cn](https://mirrors.tuna.tsinghua.edu.cn)。  
 当前支持的 JRE、JDK 版本：*`8`*、*`11`*、*`17`*。
 
 
