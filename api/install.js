@@ -131,6 +131,6 @@ exports.install = (driver, version, callback) => {
         fs.unlink(tarPath, () => {});
         if(callback && typeof callback === 'function') callback();
     }).catch(err => {
-        com.fail(`Failed to download and extract file: ${color.yellow(err.message)}`);
+        com.fail(`Failed to download and extract file: ${color.yellow(err.message)}, ${color.cyan.italic.bold('please try updating nodejs-jre to the latest version!')}`);
     });
 }
