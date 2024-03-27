@@ -1,4 +1,3 @@
-const path = require('path');
 const { jre } = require('../index');
 
 module.exports = () => {

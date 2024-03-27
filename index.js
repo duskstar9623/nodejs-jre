@@ -1,6 +1,6 @@
-const { install } = require('./api/install');
-const jre = require('./api/jre');
-const jdk = require('./api/jdk');
+const install = require('./lib/api/install');
+const jre = require('./lib/api/jre');
+const jdk = require('./lib/api/jdk');
 
 
 module.exports = { install, jre, jdk }
