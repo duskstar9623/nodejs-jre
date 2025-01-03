@@ -3,6 +3,7 @@
 package-lock.json
 **/jre
 **/jdk
+dist
 
 ### development related ###
 .vscode

@@ -1,11 +1,12 @@
 {
     "name": "nodejs-jre",
-    "version": "2.0.1",
+    "version": "3.0.0-rc",
     "description": "Embed JRE or JDK into nodejs application and make it easy to use.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
         "build": "tsc",
+        "test": "mocha --exit --require ts-node/register --recursive test/**/*.test.ts",
         "postinstall": "node ./dist/lib/preinstall.js"
     },
     "repository": {
@@ -39,12 +40,14 @@
         "compressing": "^1.10.0"
     },
     "devDependencies": {
-        "@types/chai": "^5.0.1",
+        "@types/chai": "^4.3.20",
         "@types/cli-progress": "^3.11.6",
         "@types/mocha": "^10.0.10",
         "@types/node": "^22.10.2",
-        "chai": "^5.1.2",
+        "@types/sinon": "^17.0.3",
+        "chai": "^4.5.0",
         "mocha": "^11.0.1",
+        "sinon": "^19.0.2",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2"
     }

@@ -15,7 +15,8 @@ type Com = {
     jdkDir: string,
     fail: (errMsg: string) => never,
     driverVerify: (driver: Driver) => void,
-    getCmdPath: (driver: Driver, cmd: string) => string
+    getCmdPath: (driver: Driver, cmd: string) => string,
+    getParams: (driver: Driver, cmd: string, endpoint: string | string[], args: string[]) => { cmd: string, params: string[] }
 }
 
 export default {
@@ -59,5 +60,18 @@ export default {
             case "linux":
                 return path.join(driverDir, getSourceDir(driverDir), path.join('bin', `${cmd}`));
         }
+    },
+    // Universal processing function of parameters in various Java commands
+    getParams: function(driver, cmd, endpoint, args) {
+        const cmdPath = this.getCmdPath(driver, cmd);
+        let _endpoint: string[] = [];
+        if(typeof endpoint === 'string') {
+            _endpoint = [endpoint];
+        }else {
+            _endpoint = endpoint;
+        }
+        const params = [...args, ..._endpoint];
+
+        return { cmd: cmdPath, params: params };
     }
 } as Com;

@@ -72,19 +72,20 @@ export default async function(driver: Driver, version: typeof versions[number], 
     let url: string = '';
     let format: string;
     let tarPath: string;
+    const _driver = driver.toLowerCase();
     const _version = version.toString();
     
     // Exclude unsupported architectures, platforms and non compliant parameters
     if(utils.arch !== 'x64') utils.fail('Unsupported architecture: ' + color.yellow(utils.arch));
-    if(driver !== 'jre' && driver !== 'jdk') utils.fail('Unsupported driver: ' + color.yellow(driver));
+    if(_driver !== 'jre' && _driver !== 'jdk') utils.fail('Unsupported driver: ' + color.yellow(driver));
     if(!versions.includes(version)) utils.fail('Unsupported driver version: ' + color.yellow(_version));
 
     if(os) {
-        url = buildUrl(driver.toLowerCase(), _version, os);
+        url = buildUrl(_driver, _version, os);
     }else {
         switch(utils.platform) {
             case 'win32':
-                url = buildUrl(driver.toLowerCase(), _version, 'windows');
+                url = buildUrl(_driver, _version, 'windows');
                 break;
             case 'darwin':
                 url = buildUrl(driver, _version,'mac');
@@ -106,7 +107,7 @@ export default async function(driver: Driver, version: typeof versions[number], 
     console.log("Downloading from:", color.blue.underline(url));
 
     // Prepare the source folder
-    driver === 'jre' ? clearDir(utils.jreDir) : clearDir(utils.jdkDir);
+    _driver === 'jre' ? clearDir(utils.jreDir) : clearDir(utils.jdkDir);
 
     return axios({
         method: 'get',
@@ -147,7 +148,7 @@ export default async function(driver: Driver, version: typeof versions[number], 
         });
     }).then(() => {
         // Unzip the file to the driver directory
-        if(driver === 'jre') return decompression(tarPath, format, utils.jreDir);
+        if(_driver === 'jre') return decompression(tarPath, format, utils.jreDir);
         return decompression(tarPath, format, utils.jdkDir);
     }).then(() => {
         fs.unlink(tarPath, () => {});
