@@ -168,37 +168,6 @@ jdk.javac(['test/Hello.java', 'World.java'], ['-d', 'class']);
 ```
 
 
-### jdk.jar(mode, jarPath[, args][, options])
-Create an archive for classes and resources, and to manipulate or restore individual classes or resources from an archive. Specific usage can refer to [official document][jar].
-
-**_Params_**: 
-- `mode` {String} — Main operation modes of `jar` command
-  - *<ins>Required</ins>*, e.g. `'tf'`, `-cf`, ...
-- `jarPath` {String} — Path to the `jar` file to operate on
-  - *<ins>Required</ins>*, e.g. `'jars/xxx.jar'`
-- `args` {String | String[]} — Command line parameters used by `jar`
-  - *<ins>Optional</ins>*, default: `[]`
-  - e.g. `'class/xxx.class'`, `['--manifest', 'mymanifest', '-C', 'foo/']`, ...
-  - View all available parameters list [here][jar]
-- `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
-  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
-  - View all available options list [here][child_process.spawn]
-
-This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn].
-
-```javascript
-const { jdk } = require('nodejs-jre');
-
-/*** Some Examples ***/
-
-// List the file directory of test.jar in the current directory
-jdk.jar('-tf', './test.jar');
-
-// Pack the class files a and b under the class folder into jar packages and place them in the jar directory and name them test.jar
-jdk.jar('cf', 'jars/test.jar', ['class/a.class', 'class/b.class']);
-```
-
-
 [child_process.spawn]: https://nodejs.org/docs/latest-v16.x/api/child_process.html#child_processspawncommand-args-options
 [child_process.spawnSync]: https://nodejs.org/docs/latest-v16.x/api/child_process.html#child_processspawnsynccommand-args-options
 [java]: https://docs.oracle.com/en/java/javase/11/tools/java.html#GUID-3B1CE181-CD30-4178-9602-230B800D4FAE
