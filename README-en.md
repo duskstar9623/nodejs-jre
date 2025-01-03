@@ -13,7 +13,8 @@
 
 *Nodejs-jre* will download the Java Runtime Environment (JRE) or Java Development Kit (JDK) from the open source mirror website. And embed it into your node.js application and provide usage way.
 
-Current supported JRE and JDK versions：*`8`*, *`11`*, *`17`*, *`18`*, *`19`*, *`20`*, *`21`*.
+Current supported JRE and JDK versions：*`8`*, *`11`*, *`17`*, *`18`*, *`19`*, *`20`*, *`21`*.  
+Current supported operating systems: *windows*, *macos*, *linux*, *alpine-linux*.
 
 
 ## Installation
@@ -79,24 +80,27 @@ child.on('close', code => {
 
 The APIs of *nodejs-jre* are basically based on wrapper of [child_process.spawn] and [child_process.spawnSync]. Except for `install`, all APIs have synchronous and asynchronous two types, which share the same parameters. The synchronization API will not be elaborated too much, and specific usage can refer to [child_process.spawnSync].
 
-- [install](#installdriver-version)
+- [install](#installdriver-version-os)
 - jre
   - [java](#jrejavasource-args-execargs-options)
   - javaSync
 - jdk
   - [javac](#jdkjavacsourcefile-args-options)
   - javacSync
-  - [jar](#jdkjarmode-jarpath-args-options)
-  - jarSync
 
-### install(driver, version)
-Download the specified version of JRE or JDK asynchronously and integrate it into the project, and this method will return a `Promise` which becomes `fulfilled` when the integration is complete. When `npm i` *nodejs-jre*, it will automatically call `install ('jre', 8)` to download and install `jre8`.
+### install(driver, version[, os])
+Download the specified version of JRE or JDK asynchronously and integrate it into the project, and this method will return a `Promise` which becomes `fulfilled` when the integration is complete. When `npm i` *nodejs-jre*, it will automatically call `install ('jre', 8)` to download and install `jre8`.  
+
+If the `os` field is not specified, the JRE or JDK of the current operating system will be downloaded by default.  
+❗ To download Alpine Linux resources, it is necessary to explicitly set the `os` field, otherwise Linux resources will be downloaded by default.
 
 **_Params_**: 
 - `driver` {String} — Type of resource
   - *<ins>Required</ins>*, only support `'jre'` and `'jdk'`
-- `version` {String | Number} — Version of resource
+- `version` {Number} — Version of resource
   - *<ins>Required</ins>*, currently only support *`8`*, *`11`*, *`17`*, *`18`*, *`19`*, *`20`*, *`21`*
+- `os` {String} — Operating system of resource
+  - *<ins>Optional</ins>*, only support `'windows'`, `'mac'`, `'linux'` or `'alpine-linux'`
 
 
 ### jre.java(source[, args][, execArgs][, options])
@@ -104,17 +108,15 @@ Download the specified version of JRE or JDK asynchronously and integrate it int
 Load the specified class or file, and launch the Java program. Specific usage can refer to [official document][java].
 
 **_Params_**: 
-- `source` {String} — The class name or `jar` file to start, it needs to be used with different `args`
+- `sourceName` {String} — The class name or `jar` file to start, it needs to be used with different `args`
   - *<ins>Required</ins>*, e.g. `'Hello'`, `'xxx.jar'`
 - `args` {String[]} — Command line options used by `java`
   - *<ins>Optional</ins>*, default: `[]`
-  - e.g. `['-cp', 'test']`, `['-jar', 'xxx.jar']`, ...
   - View all available options list [here](https://docs.oracle.com/en/java/javase/11/tools/java.html#GUID-3B1CE181-CD30-4178-9602-230B800D4FAE__CBBIJCHG)
 - `execArgs` {String[]} — Parameters passed to the main class
   - *<ins>Optional</ins>*, default: `[]`
-  - e.g. `['world']`, ...
 - `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
-  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
+  - *<ins>Optional</ins>*, default: `{ detached: 'false' }`
   - View all available options list [here][child_process.spawn]
 
 This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn].
@@ -147,7 +149,7 @@ Read Java class and interface definitions and compile them into bytecode and cla
   - e.g. `['-d', 'test']`
   - View all available options list [here](https://docs.oracle.com/en/java/javase/11/tools/javac.html#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9__BHCGAJDC)
 - `options` {Object} — Options pass to `child_process.spawn` used in the `options` section
-  - *<ins>Optional</ins>*, default: `{ encoding: 'utf-8' }`
+  - *<ins>Optional</ins>*, default: `{ encoding: 'utf8' }`
   - View all available options list [here][child_process.spawn]
 
 This function returns a [ChildProcess instance](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess), to handle the execution results and error information of the process. For details, please refer to [child_process.spawn].
@@ -222,4 +224,4 @@ Because of fate, we met here by chance. Feel free to leave a Star ⭐ to this re
 
 ## License
 
-[MIT Copyright (c) 2023 Duskstar](LICENSE)
+[MIT Copyright (c) 2024 Duskstar](LICENSE)

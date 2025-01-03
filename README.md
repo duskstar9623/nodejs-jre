@@ -13,7 +13,8 @@
 
 *Nodejs-jre* 可以从开源镜像网站下载 Java 运行时环境（JRE）或 Java 开发工具包（JDK）嵌入你的 node.js 应用并提供使用方法。
 
-当前支持的 JRE、JDK 版本：*`8`*、*`11`*、*`17`*、*`18`*、*`19`*、*`20`*、*`21`*。
+当前支持的 JRE、JDK 版本：*`8`*、*`11`*、*`17`*、*`18`*、*`19`*、*`20`*、*`21`*。  
+当前支持的操作系统：*windows*、*macos*、*linux*、*alpine-linux*。
 
 
 ## 安装
@@ -79,41 +80,42 @@ child.on('close', code => {
 
 *Nodejs-jre* 的 API 基本都是基于 [child_process.spawn] 和 [child_process.spawnSync] 的包装。除 `install` 外，所有 API 都提供同步和异步两个版本，它们拥有同样的参数，同步 API 具体可参考 [child_process.spawnSync]。
 
-- [install](#installdriver-version)
+- [install](#installdriver-version-os)
 - jre
   - [java](#jrejavasource-args-execargs-options)
   - javaSync
 - jdk
   - [javac](#jdkjavacsourcefile-args-options)
   - javacSync
-  - [jar](#jdkjarmode-jarpath-args-options)
-  - jarSync
 
-### install(driver, version)
-异步下载指定版本的 JRE 或 JDK 集成到项目中去，该方法返回一个在集成完成后转为 `fulfilled` 的 `Promise`。在 `npm i` *nodejs-jre* 时，会自动调用 `install('jre', 8)` 下载安装 `jre8`。
+### install(driver, version[, os])
+异步下载指定版本的 JRE 或 JDK 集成到项目中去，该方法返回一个在集成完成后转为 `fulfilled` 的 `Promise`。在 `npm i nodejs-jre` 时，会自动调用 `install('jre', 8)` 下载安装 `jre8`。  
+
+若不指定 `os` 字段，默认会下载当前操作系统的 JRE 或 JDK。  
+❗ 要下载 alpine-linux 的资源，需要显示地制定 `os` 字段，否则默认会下载 `linux` 的资源。
 
 **_参数_**: 
 - `driver` {String} — 资源类型
   - *<ins>必填</ins>*，仅支持 `'jre'` 或 `'jdk'`
-- `version` {String | Number} — 资源版本
+- `version` {Number} — 资源版本
   - *<ins>必填</ins>*，目前仅支持 *`8`*、*`11`*、*`17`*、*`18`*、*`19`*、*`20`*、*`21`*
+- `os` {String} — 操作系统
+  - *<ins>选填</ins>*，仅支持 `'windows'`、`'mac'`、`'linux'` 或 `'alpine-linux'`
 
 
 ### jre.java(source[, args][, execArgs][, options])
 加载指定的类或文件，运行 Java 程序。具体用法可参考[官方文档][java]。
 
 **_参数_**: 
-- `source` {String} — 要启动的类名或 `jar` 文件，需搭配不同的 `args` 使用
+- `sourceName` {String} — 要启动的类名或 `jar` 文件，需搭配不同的 `args` 使用
   - *<ins>必填</ins>*，例如：`'Hello'`、`'xxx.jar'`
 - `args` {String[]} — `java` 使用的命令行选项
   - *<ins>选填</ins>*，默认：`[]`
-  - 例如：`['-cp', 'test']`、`['-jar', 'xxx.jar']`、...
   - 查看所有可使用的[选项列表](https://docs.oracle.com/en/java/javase/11/tools/java.html#GUID-3B1CE181-CD30-4178-9602-230B800D4FAE__CBBIJCHG)
 - `execArgs` {String[]} — 传递给主类的参数
   - *<ins>选填</ins>*，默认：`[]`
-  - 例如：`['world']`、...
 - `options` {Object} — 传递给 `child_process.spawn` 的 `options` 部分使用的选项
-  - *<ins>选填</ins>*，默认：`{ encoding: 'utf-8' }`
+  - *<ins>选填</ins>*，默认：`{ detached: false }`
   - 查看所有可使用的[选项列表][child_process.spawn]
 
 该函数返回一个 [ChildProcess 实例](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess)，用以处理进程的执行结果和错误信息，具体可参考 [child_process.spawn]。
@@ -146,7 +148,7 @@ jre.java('org.xxx.yyy.ZZZ', ['-cp', ';.jar/a.jar'], ['12', '34']);
   - 例如：`['-d', 'test']`
   - 查看所有可使用的[选项列表](https://docs.oracle.com/en/java/javase/11/tools/javac.html#GUID-AEEC9F07-CB49-4E96-8BC7-BCC2C7F725C9__BHCGAJDC)
 - `options` {Object} — 传递给 `child_process.spawn` 的 `options` 部分使用的选项
-  - *<ins>选填</ins>*，默认：`{ encoding: 'utf-8' }`
+  - *<ins>选填</ins>*，默认：`{ encoding: 'utf8' }`
   - 查看所有可使用的[选项列表][child_process.spawn]
 
 该函数返回一个 [ChildProcess 实例](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess)，用以处理进程的执行结果和错误信息，具体可参考 [child_process.spawn]。
@@ -162,37 +164,6 @@ jdk.javac('test/Hello.java', [], { env: ...process.env });
 // 编译 test 文件夹下的 Hello.java 和当前目录下的 World.java 文件
 // 在 class 文件夹下生成编译好的文件
 jdk.javac(['test/Hello.java', 'World.java'], ['-d', 'class']);
-```
-
-
-### jdk.jar(mode, jarPath[, args][, options])
-为类和资源创建 `jar` 包或操纵 `jar` 包中的类和资源。具体用法可参考[官方文档][jar]。
-
-**_参数_**: 
-- `mode` {String} — 主要操作模式
-  - *<ins>必填</ins>*，例如：`'tf'`、`-cf`、...
-- `jarPath` {String} — 要操作的 `jar` 文件路径
-  - *<ins>必填</ins>*，例如：`'jars/xxx.jar'`
-- `args` {String | String[]} — `jar` 使用的命令行参数
-  - *<ins>选填</ins>*，默认：`[]`
-  - 例如：`'class/xxx.class'`、`['--manifest', 'mymanifest', '-C', 'foo/']`、...
-  - 查看所有可使用的[参数列表][jar]
-- `options` {Object} — 传递给 `child_process.spawn` 的 `options` 部分使用的选项
-  - *<ins>选填</ins>*，默认：`{ encoding: 'utf-8' }`
-  - 查看所有可使用的[选项列表][child_process.spawn]
-
-该函数返回一个 [ChildProcess 实例](https://nodejs.org/docs/latest-v16.x/api/child_process.html#class-childprocess)，用以处理进程的执行结果和错误信息，具体可参考 [child_process.spawn]。
-
-```javascript
-const { jdk } = require('nodejs-jre');
-
-/*** Some Examples ***/
-
-// 列出当前目录下 test.jar 的文件目录
-jdk.jar('-tf', './test.jar');
-
-// 将 class 文件夹下的 a、b 两个 class 文件打成 jar 包，放在 jars 目录下命名为 test.jar
-jdk.jar('cf', 'jars/test.jar', ['class/a.class', 'class/b.class']);
 ```
 
 
@@ -221,4 +192,4 @@ jdk.jar('cf', 'jars/test.jar', ['class/a.class', 'class/b.class']);
 
 ## License
 
-[MIT Copyright (c) 2023 Duskstar](LICENSE)
+[MIT Copyright (c) 2024 Duskstar](LICENSE)
