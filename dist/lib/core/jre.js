@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
+const util_1 = __importDefault(require("util"));
 const child_process_1 = require("child_process");
 const utils_1 = __importDefault(require("../utils"));
 exports.default = {
@@ -17,10 +18,15 @@ exports.default = {
      */
     java: function (sourceName, args = [], execArgs = [], options = { detached: false }) {
         const { cmd, params } = utils_1.default.getParams('jre', 'java', sourceName, args);
-        const child = (0, child_process_1.spawn)(cmd, [...params, ...execArgs], options);
-        child.stdout?.setEncoding("utf8");
-        child.stderr?.setEncoding("utf8");
-        return child;
+        try {
+            const child = (0, child_process_1.spawn)(cmd, [...params, ...execArgs], options);
+            child.stdout?.setEncoding("utf8");
+            child.stderr?.setEncoding("utf8");
+            return child;
+        }
+        catch (err) {
+            utils_1.default.fail(util_1.default.inspect(err, { depth: 1, colors: true }));
+        }
     },
     /**
      * @description Launch a Java application synchronously

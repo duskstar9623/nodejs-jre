@@ -7,7 +7,7 @@ declare const _default: {
      * @param {String[]} execArgs Arguments to the main class
      * @param {SpawnOptions} options Options used by child_process.spawn, e.g. { uid: 123 }
      */
-    java: (sourceName: string, args?: string[], execArgs?: string[], options?: SpawnOptions) => ChildProcess;
+    java: (sourceName: string, args?: string[], execArgs?: string[], options?: SpawnOptions) => ChildProcess | void;
     /**
      * @description Launch a Java application synchronously
      * @param {String} sourceName Jar file, source file or class name to launch, e.g. com.xxx.xxx

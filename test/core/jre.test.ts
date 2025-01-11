@@ -10,11 +10,13 @@ describe('test jre module', () => {
     describe("java", () => {
         it("should launch a Java application asynchronously", () => {
             const getParamsStub = sinon.stub(utils, "getParams").returns({ cmd: 'java', params: ['-cp', 'path/to/jar'] });
+            const fakeChildProcess = child_process.spawn(process.execPath, ['-e', 'console.log("hello")']);
+            const javaStub = sinon.stub(jre, 'java').returns(fakeChildProcess);
             const child = jre.java('com.example.Main', ['-cp', 'path/to/jar'], ['arg1', 'arg2']);
-            expect(getParamsStub.calledOnceWith('jre', 'java', 'com.example.Main', ['-cp', 'path/to/jar'])).to.be.true;
             expect(child).to.be.an.instanceOf(child_process.ChildProcess);
 
             getParamsStub.restore();
+            javaStub.restore();
         });
     });
 

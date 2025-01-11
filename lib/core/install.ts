@@ -1,6 +1,12 @@
 import path from 'path';
 import fs from "fs";
 import https from 'https';
+import util from 'util';
+
+import { ReadableStream } from 'web-streams-polyfill';
+if(typeof globalThis.ReadableStream === 'undefined') {
+    globalThis.ReadableStream = ReadableStream as any;
+}
 
 import axios from 'axios';
 import compressing from 'compressing';
@@ -31,7 +37,7 @@ async function getResourceName(url: string): Promise<string> {
         return $('#list tbody tr .link a').last().text();
     }
     catch(err: any) {
-        utils.fail(err.message);
+        utils.fail(util.inspect(err, { depth: 1, colors: true }));
     }
     return '';
 }
@@ -113,7 +119,7 @@ export default async function(driver: Driver, version: typeof versions[number], 
         method: 'get',
         url: url,
         responseType: 'stream',
-        httpsAgent: new https.Agent({ keepAlive: true,rejectUnauthorized: false }),
+        httpsAgent: new https.Agent({ keepAlive: true, rejectUnauthorized: false }),
         proxy: false
     }).then(res => {
         const writer = fs.createWriteStream(tarPath);
@@ -153,6 +159,6 @@ export default async function(driver: Driver, version: typeof versions[number], 
     }).then(() => {
         fs.unlink(tarPath, () => {});
     }).catch(err => {
-        utils.fail(`Failed to download and extract file: ${color.yellow(err.message)}`);
+        utils.fail(`Failed to download and extract file: ${color.yellow(util.inspect(err, { depth: 1}))}`);
     });
 }
