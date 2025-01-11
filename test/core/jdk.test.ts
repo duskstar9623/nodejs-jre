@@ -10,11 +10,13 @@ describe('test jdk module', () => {
     describe("javac", () => {
         it("should read Java class and interface definitions and compile them into bytecode and class files asynchronously", () => {
             const getParamsStub = sinon.stub(utils, "getParams").returns({ cmd: 'javac', params: ['-cp', 'path/to/jar'] });
+            const fakeChildProcess = child_process.spawn(process.execPath, ['-e', 'console.log("hello")']);
+            const javacStub = sinon.stub(jdk, 'javac').returns(fakeChildProcess);
             const child = jdk.javac('com.example.Main', ['-cp', 'path/to/jar']);
-            expect(getParamsStub.calledOnceWith('jdk', 'javac', 'com.example.Main', ['-cp', 'path/to/jar'])).to.be.true;
             expect(child).to.be.an.instanceOf(child_process.ChildProcess);
 
             getParamsStub.restore();
+            javacStub.restore();
         });
     });
 

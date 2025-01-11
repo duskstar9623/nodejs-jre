@@ -1,4 +1,5 @@
 import path from 'path';
+import util from 'util';
 import { spawn, spawnSync, SpawnOptions, SpawnSyncOptions, ChildProcess, SpawnSyncReturns } from 'child_process';
 
 import utils from '../utils';
@@ -11,12 +12,17 @@ export default {
      * @param {String[]} args Command-line options used by javac, e.g. ['-verbose', '-d /home/class']
      * @param {SpawnOptions} options Options used by child_process.spawn, e.g. { uid: 123 }
      */
-    javac: function(sourceFile: string | string[], args: string[] = [], options: SpawnOptions = { detached: false }): ChildProcess {
+    javac: function(sourceFile: string | string[], args: string[] = [], options: SpawnOptions = { detached: false }): ChildProcess | void {
         const { cmd, params } = utils.getParams('jdk', 'javac', sourceFile, args);
-        const child = spawn(cmd, params, options);
-        child.stdout?.setEncoding("utf8");
-        child.stderr?.setEncoding("utf8");
-        return child;
+        try {
+            const child = spawn(cmd, params, options);
+            child.stdout?.setEncoding("utf8");
+            child.stderr?.setEncoding("utf8");
+            return child;
+        }
+        catch(err) {
+            utils.fail(util.inspect(err, { depth: 1, colors: true }));
+        }
     },
 
     /**

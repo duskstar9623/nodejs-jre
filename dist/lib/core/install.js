@@ -40,6 +40,11 @@ exports.default = default_1;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
+const util_1 = __importDefault(require("util"));
+const web_streams_polyfill_1 = require("web-streams-polyfill");
+if (typeof globalThis.ReadableStream === 'undefined') {
+    globalThis.ReadableStream = web_streams_polyfill_1.ReadableStream;
+}
 const axios_1 = __importDefault(require("axios"));
 const compressing_1 = __importDefault(require("compressing"));
 const cli_progress_1 = __importDefault(require("cli-progress"));
@@ -66,7 +71,7 @@ async function getResourceName(url) {
         return $('#list tbody tr .link a').last().text();
     }
     catch (err) {
-        utils_1.default.fail(err.message);
+        utils_1.default.fail(util_1.default.inspect(err, { depth: 1, colors: true }));
     }
     return '';
 }
@@ -188,6 +193,6 @@ async function default_1(driver, version, os) {
     }).then(() => {
         fs_1.default.unlink(tarPath, () => { });
     }).catch(err => {
-        utils_1.default.fail(`Failed to download and extract file: ${ansi_colors_1.default.yellow(err.message)}`);
+        utils_1.default.fail(`Failed to download and extract file: ${ansi_colors_1.default.yellow(util_1.default.inspect(err, { depth: 1 }))}`);
     });
 }

@@ -82,7 +82,7 @@ child.on('close', code => {
 
 - [install](#installdriver-version-os)
 - jre
-  - [java](#jrejavasource-args-execargs-options)
+  - [java](#jrejavasourcename-args-execargs-options)
   - javaSync
 - jdk
   - [javac](#jdkjavacsourcefile-args-options)
@@ -103,7 +103,7 @@ child.on('close', code => {
   - *<ins>选填</ins>*，仅支持 `'windows'`、`'mac'`、`'linux'` 或 `'alpine-linux'`
 
 
-### jre.java(source[, args][, execArgs][, options])
+### jre.java(sourceName[, args][, execArgs][, options])
 加载指定的类或文件，运行 Java 程序。具体用法可参考[官方文档][java]。
 
 **_参数_**: 
@@ -126,14 +126,14 @@ const { jre } = require('nodejs-jre');
 /*** Some Examples ***/
 
 // 合并父进程与子进程的环境变量，运行 Hello.class 文件
-jre.java('Hello', [], [], { env: ...process.env });  
+jre.java('Hello', ['-Dfile.encoding=UTF-8'], [], { env: ...process.env });  
 
 // 运行 Test.jar 文件
-jre.java('Test.jar', ['-jar']);
+jre.java('Test.jar', ['-Dfile.encoding=UTF-8', '-jar']);
 
 // windows 中运行 a.jar 文件中的 org.xxx.yyy.ZZZ 类
 // 同时传递 '12'、'34' 两个参数给它
-jre.java('org.xxx.yyy.ZZZ', ['-cp', ';.jar/a.jar'], ['12', '34']);  
+jre.java('org.xxx.yyy.ZZZ', ['-Dfile.encoding=UTF-8', '-cp', ';.jar/a.jar'], ['12', '34']);  
 ```
 
 

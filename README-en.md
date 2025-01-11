@@ -82,7 +82,7 @@ The APIs of *nodejs-jre* are basically based on wrapper of [child_process.spawn]
 
 - [install](#installdriver-version-os)
 - jre
-  - [java](#jrejavasource-args-execargs-options)
+  - [java](#jrejavasourcename-args-execargs-options)
   - javaSync
 - jdk
   - [javac](#jdkjavacsourcefile-args-options)
@@ -103,7 +103,7 @@ If the `os` field is not specified, the JRE or JDK of the current operating syst
   - *<ins>Optional</ins>*, only support `'windows'`, `'mac'`, `'linux'` or `'alpine-linux'`
 
 
-### jre.java(source[, args][, execArgs][, options])
+### jre.java(sourceName[, args][, execArgs][, options])
 
 Load the specified class or file, and launch the Java program. Specific usage can refer to [official document][java].
 
@@ -127,14 +127,14 @@ const { jre } = require('nodejs-jre');
 /*** Some Examples ***/
 
 // Merge the environment variables of the parent and child processes, and run the Hello.class file
-jre.java('Hello', [], [], { env: ...process.env });  
+jre.java('Hello', ['-Dfile.encoding=UTF-8'], [], { env: ...process.env });  
 
 // Run Test.jar file
-jre.java('Test.jar', ['-jar']);
+jre.java('Test.jar', ['-Dfile.encoding=UTF-8', '-jar']);
 
 // Run the class org.xxx.yyy.ZZZ in the a.jar file in Windows 
 // And pass two Params, '12' and '34', to it at the same time
-jre.java('org.xxx.yyy.ZZZ', ['-cp', ';.jar/a.jar'], ['12', '34']);  
+jre.java('org.xxx.yyy.ZZZ', ['-Dfile.encoding=UTF-8', '-cp', ';.jar/a.jar'], ['12', '34']);  
 ```
 
 
